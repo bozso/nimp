@@ -33,3 +33,11 @@ func (t *TryNTimes) Try(err error) (s Status) {
     return Continue
 }
 
+func Exhaust(t TryUntil, fn ErrorFn) (err error) {
+    err = fn()
+    for t.Try(err) != Finished {
+        err = fn()
+    }
+
+    return
+}
