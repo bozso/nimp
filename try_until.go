@@ -19,12 +19,22 @@ type TryUntil interface {
     Try(error) Status
 }
 
-type TryNTimes struct {
+type TryNTimes uint
+
+func (t TryNTimes) CreateTry() (tu TryUntil) {
+    return &TryNTimesImpl {
+        current: 0,
+        times: uint(t),
+    }
+}
+
+
+type TryNTimesImpl struct {
     current uint
     times uint
 }
 
-func (t *TryNTimes) Try(err error) (s Status) {
+func (t *TryNTimesImpl) Try(err error) (s Status) {
     if err == nil || t.current >= t.times {
         return Finished
     }
@@ -34,10 +44,10 @@ func (t *TryNTimes) Try(err error) (s Status) {
 }
 
 func Exhaust(t TryUntil, fn ErrorFn) (err error) {
-    err = fn()
-    for t.Try(err) != Finished {
+    for {
         err = fn()
+        if t.Try(err) == Finished {
+            return
+        }
     }
-
-    return
 }
