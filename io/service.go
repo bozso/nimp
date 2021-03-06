@@ -1,8 +1,6 @@
 package io
 
 import (
-    "io"
-
     "github.com/bozso/gotoolbox/hash"
 )
 
